@@ -55,13 +55,18 @@ module.exports = {
             );
 
         try {
-            await targetChannel.threads.create({
+            // Création du post "Comment créer un dossier ?"
+            const panelPost = await targetChannel.threads.create({
                 name: 'Comment créer un dossier ?',
                 message: {
                     embeds: [embed],
                     components: [row]
                 }
             });
+
+            // Verrouille le post du panneau pour que personne ne puisse y écrire
+            await panelPost.setLocked(true);
+
         } catch (error) {
             console.error("Erreur lors de la création du post dans le forum :", error);
             const technicalErrorEmbed = new EmbedBuilder()
@@ -213,7 +218,7 @@ module.exports = {
                     dossierEmbed.setImage(fileUrl);
                 }
 
-                // Création du post avec application des permissions spécifiques
+                // Création du post de dossier avec permissions strictes pour les nouveaux posts
                 const forumPost = await targetChannel.threads.create({
                     name: matricule.substring(0, 100),
                     message: {
@@ -221,20 +226,20 @@ module.exports = {
                     },
                     permissionOverwrites: [
                         {
-                            id: interaction.guild.id, // @everyone
+                            id: interaction.guild.id, // @everyone interdit
                             deny: [PermissionFlagsBits.ViewChannel],
                         },
                         {
-                            id: '1531400982817280020', // Rôle qui peut seulement voir
+                            id: '1531400982817280020', // Rôle lecture seule
                             allow: [PermissionFlagsBits.ViewChannel],
                             deny: [PermissionFlagsBits.SendMessages],
                         },
                         {
-                            id: '1531392863336923246', // Rôle 1 (accès complet)
+                            id: '1531392863336923246', // Rôle d'accès complet
                             allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
                         },
                         {
-                            id: '1531693399051079700', // Rôle 2 (accès complet)
+                            id: '1531693399051079700', // Rôle d'accès complet
                             allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
                         }
                     ]
