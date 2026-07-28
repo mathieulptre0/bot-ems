@@ -23,7 +23,6 @@ module.exports = {
         const botAvatar = interaction.client.user.displayAvatarURL();
         const currentDate = new Date().toLocaleDateString('fr-FR');
 
-        // 1. Vérification du rôle requis
         if (!interaction.member.roles.cache.has(requiredRoleId)) {
             const errorEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas la **permission** d\'utiliser cette commande car il vous **manque le rôle requis**.')
@@ -38,7 +37,6 @@ module.exports = {
         const reason = interaction.options.getString('raison') || 'Aucune raison spécifiée.';
         const targetMember = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
 
-        // Vérification si le membre est sur le serveur
         if (!targetMember) {
             const notFoundEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Erreur__\n\nImpossible de trouver cet utilisateur sur le serveur.')
@@ -48,7 +46,6 @@ module.exports = {
             return await interaction.reply({ embeds: [notFoundEmbed], ephemeral: true });
         }
 
-        // Vérification si l'utilisateur peut être modéré par le bot
         if (!targetMember.moderatable) {
             const unmoderatableEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Erreur__\n\nJe ne peux pas appliquer de timeout à cet utilisateur (son rôle est supérieur ou égal au mien).')
@@ -58,7 +55,6 @@ module.exports = {
             return await interaction.reply({ embeds: [unmoderatableEmbed], ephemeral: true });
         }
 
-        // Analyse du format du temps saisi (ex: 30s, 15m, 2h, 1j)
         const regex = /^(\d+)([smhj])$/i;
         const match = timeString.match(regex);
 
@@ -105,7 +101,6 @@ module.exports = {
             return await interaction.reply({ embeds: [invalidDurationEmbed], ephemeral: true });
         }
 
-        // Limitation stricte à 27 jours maximum pour éviter les bugs d'arrondi de l'API Discord (limite max réelle : 28 jours)
         const maxTimeoutMs = 27 * 24 * 60 * 60 * 1000;
         if (durationMs > maxTimeoutMs) {
             const limitErrorEmbed = new EmbedBuilder()
@@ -116,7 +111,6 @@ module.exports = {
             return await interaction.reply({ embeds: [limitErrorEmbed], ephemeral: true });
         }
 
-        // 2. Envoi du message privé en rouge à la personne ciblée
         const dmEmbed = new EmbedBuilder()
             .setTitle('⚠️ __Vous avez reçu un timeout__')
             .setDescription(`Vous avez été réduit au silence (timeout) sur le serveur **${interaction.guild.name}** pour une durée de **${durationText}**.\n\n**Raison :** ${reason}`)
@@ -127,7 +121,6 @@ module.exports = {
             console.log(`Impossible d'envoyer un message privé à ${targetUser.tag}.`);
         });
 
-        // 3. Application du timeout sur le serveur en utilisant l'objet de configuration direct
         try {
             await targetMember.edit({
                 communicationDisabledUntil: Date.now() + durationMs,
@@ -143,7 +136,6 @@ module.exports = {
             return await interaction.reply({ embeds: [timeoutErrorEmbed], ephemeral: true });
         }
 
-        // 4. Réponse de confirmation en embed éphémère vert
         const successEmbed = new EmbedBuilder()
             .setDescription(`## ✅ __Timeout réussi__\n\nL'utilisateur **${targetUser.tag}** a reçu un timeout de **${durationText}** avec succès.\n**Raison :** ${reason}`)
             .setColor(0x00FF00)

@@ -19,7 +19,6 @@ module.exports = {
         const botAvatar = interaction.client.user.displayAvatarURL();
         const currentDate = new Date().toLocaleDateString('fr-FR');
 
-        // 1. Vérification du rôle requis (identique au fichier ticket.js)
         if (!interaction.member.roles.cache.has(requiredRoleId)) {
             const errorEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas la **permission** d\'utiliser cette commande car il vous **manque le rôle requis**.')
@@ -33,7 +32,6 @@ module.exports = {
         const reason = interaction.options.getString('raison') || 'Aucune raison spécifiée.';
         const targetMember = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
 
-        // Vérification si le membre est sur le serveur
         if (!targetMember) {
             const notFoundEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Erreur__\n\nImpossible de trouver cet utilisateur sur le serveur.')
@@ -43,7 +41,6 @@ module.exports = {
             return await interaction.reply({ embeds: [notFoundEmbed], ephemeral: true });
         }
 
-        // Vérification si l'utilisateur peut être expulsé par le bot
         if (!targetMember.kickable) {
             const unkickableEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Erreur__\n\nJe ne peux pas expulser cet utilisateur (son rôle est supérieur ou égal au mien).')
@@ -53,7 +50,6 @@ module.exports = {
             return await interaction.reply({ embeds: [unkickableEmbed], ephemeral: true });
         }
 
-        // 2. Envoi du message privé en rouge à la personne ciblée
         const dmEmbed = new EmbedBuilder()
             .setTitle('⚠️ __Vous avez été expulsé__')
             .setDescription(`Vous avez été expulsé (kick) du serveur **${interaction.guild.name}**.\n\n**Raison :** ${reason}`)
@@ -65,7 +61,6 @@ module.exports = {
             console.log(`Impossible d'envoyer un message privé à ${targetUser.tag}.`);
         });
 
-        // 3. Exécution de l'expulsion sur le serveur
         try {
             await targetMember.kick(reason);
         } catch (error) {
@@ -78,7 +73,6 @@ module.exports = {
             return await interaction.reply({ embeds: [kickErrorEmbed], ephemeral: true });
         }
 
-        // 4. Réponse de confirmation en embed éphémère vert
         const successEmbed = new EmbedBuilder()
             .setDescription(`## ✅ __Expulsion réussie__\n\nL'utilisateur **${targetUser.tag}** a été **expulsé** avec succès.\n**Raison :** ${reason}`)
             .setColor(0x00FF00)

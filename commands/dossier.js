@@ -239,18 +239,15 @@ module.exports = {
         }
     },
 
-    // Gestion de la suppression automatique des messages non autorisés
     async handleMessage(message) {
         if (message.author.bot) return;
 
         const targetChannelId = '1531382781014180090';
-        const panelPostId = '1531693225851617394'; // ID du fil "Comment créer un dossier ?"
+        const panelPostId = '1531693225851617394'; 
         const allowedRoleIds = ['1531693399051079700', '1531392863336923246'];
 
-        // Vérifie si le message est dans un fil du forum cible
         if (message.channel.isThread() && message.channel.parentId === targetChannelId) {
             
-            // Cas 1 : C'est le fil spécifique "Comment créer un dossier ?" -> Personne ne peut écrire
             if (message.channel.id === panelPostId) {
                 try {
                     await message.delete();
@@ -260,7 +257,6 @@ module.exports = {
                 return;
             }
 
-            // Cas 2 : C'est un autre fil (un dossier) -> Seuls les rôles autorisés peuvent écrire
             const hasAccess = allowedRoleIds.some(roleId => message.member?.roles.cache.has(roleId));
 
             if (!hasAccess) {

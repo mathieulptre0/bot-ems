@@ -146,10 +146,8 @@ module.exports = {
             }
         }
 
-        // --- GESTION DES MODALS (FORMULAIRES) ---
         if (interaction.isModalSubmit()) {
             
-            // 1. Soumission du formulaire d'ajout (✅ Ajouter)
             if (interaction.customId === 'modal_add_matricule') {
                 const inputVal = interaction.fields.getTextInputValue('matricule_number');
                 const numero = parseInt(inputVal, 10);
@@ -165,7 +163,6 @@ module.exports = {
 
                 const dbData = readDB();
 
-                // Vérification si le matricule est déjà attribué
                 if (dbData[numero]) {
                     const errorEmbed = new EmbedBuilder()
                         .setDescription(`## ⛔ __Erreur__\n\nLe matricule **${numero}** est **déjà attribué** à <@${dbData[numero]}>. Veuillez le retirer d'abord si vous souhaitez le réattribuer.`)
@@ -226,7 +223,6 @@ module.exports = {
                 });
             }
 
-            // 2. Soumission du formulaire de retrait (❌ Retirer)
             if (interaction.customId === 'modal_remove_matricule') {
                 const inputVal = interaction.fields.getTextInputValue('matricule_number');
                 const numero = parseInt(inputVal, 10);
@@ -242,7 +238,6 @@ module.exports = {
 
                 const dbData = readDB();
 
-                // Vérification si le matricule est déjà vide
                 if (!dbData[numero]) {
                     const errorEmbed = new EmbedBuilder()
                         .setDescription(`## ⛔ __Erreur__\n\nLe matricule **${numero}** n'a **aucune personne** associée à retirer.`)
@@ -252,11 +247,9 @@ module.exports = {
                     return await interaction.reply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
                 }
 
-                // Suppression de l'attribution
                 delete dbData[numero];
                 writeDB(dbData);
 
-                // Mise à jour de l'embed principal
                 try {
                     const messages = await interaction.channel.messages.fetch({ limit: 15 });
                     const targetMessage = messages.find(msg => msg.embeds.length > 0 && msg.embeds[0].description?.includes('LISTE MATRICULE'));
