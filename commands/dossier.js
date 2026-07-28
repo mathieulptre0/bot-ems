@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ModalBuilder, TextInputBuilder, TextInputStyle, FileUploadBuilder, LabelBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ModalBuilder, TextInputBuilder, TextInputStyle, FileUploadBuilder, LabelBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -55,7 +55,6 @@ module.exports = {
             );
 
         try {
-            // Création du post "Comment créer un dossier ?"
             const panelPost = await targetChannel.threads.create({
                 name: 'Comment créer un dossier ?',
                 message: {
@@ -64,9 +63,7 @@ module.exports = {
                 }
             });
 
-            // Verrouille le post du panneau pour que personne ne puisse y écrire
             await panelPost.setLocked(true);
-
         } catch (error) {
             console.error("Erreur lors de la création du post dans le forum :", error);
             const technicalErrorEmbed = new EmbedBuilder()
@@ -218,31 +215,11 @@ module.exports = {
                     dossierEmbed.setImage(fileUrl);
                 }
 
-                // Création du post de dossier avec permissions strictes pour les nouveaux posts
                 const forumPost = await targetChannel.threads.create({
                     name: matricule.substring(0, 100),
                     message: {
                         embeds: [dossierEmbed]
-                    },
-                    permissionOverwrites: [
-                        {
-                            id: interaction.guild.id, // @everyone interdit
-                            deny: [PermissionFlagsBits.ViewChannel],
-                        },
-                        {
-                            id: '1531400982817280020', // Rôle lecture seule
-                            allow: [PermissionFlagsBits.ViewChannel],
-                            deny: [PermissionFlagsBits.SendMessages],
-                        },
-                        {
-                            id: '1531392863336923246', // Rôle d'accès complet
-                            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-                        },
-                        {
-                            id: '1531693399051079700', // Rôle d'accès complet
-                            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-                        }
-                    ]
+                    }
                 });
 
                 const starterMessage = await forumPost.fetchStarterMessage();
@@ -258,6 +235,40 @@ module.exports = {
                 await interaction.editReply({
                     content: 'Une erreur est survenue lors de la création de votre dossier.'
                 });
+            }
+        }
+    },
+
+    // Gestion de la suppression automatique des messages non autorisés
+    async handleMessage(message) {
+        if (message.author.bot) return;
+
+        const targetChannelId = '1531382781014180090';
+        const panelPostId = '1531693225851617394'; // ID du fil "Comment créer un dossier ?"
+        const allowedRoleIds = ['1531693399051079700', '1531392863336923246'];
+
+        // Vérifie si le message est dans un fil du forum cible
+        if (message.channel.isThread() && message.channel.parentId === targetChannelId) {
+            
+            // Cas 1 : C'est le fil spécifique "Comment créer un dossier ?" -> Personne ne peut écrire
+            if (message.channel.id === panelPostId) {
+                try {
+                    await message.delete();
+                } catch (err) {
+                    console.error("Erreur lors de la suppression du message dans le panneau :", err);
+                }
+                return;
+            }
+
+            // Cas 2 : C'est un autre fil (un dossier) -> Seuls les rôles autorisés peuvent écrire
+            const hasAccess = allowedRoleIds.some(roleId => message.member?.roles.cache.has(roleId));
+
+            if (!hasAccess) {
+                try {
+                    await message.delete();
+                } catch (err) {
+                    console.error("Erreur lors de la suppression du message non autorisé dans un dossier :", err);
+                }
             }
         }
     }
