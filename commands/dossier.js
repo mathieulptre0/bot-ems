@@ -13,6 +13,7 @@ module.exports = {
         const botAvatar = interaction.client.user.displayAvatarURL();
         const currentDate = new Date().toLocaleDateString('fr-FR');
 
+        // Seul le rôle requis peut exécuter la commande /dossier
         if (!interaction.member.roles.cache.has(requiredRoleId)) {
             const errorEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas la **permission** d\'utiliser cette commande car il vous **manque le rôle requis**.')
@@ -88,6 +89,7 @@ module.exports = {
         const currentDate = new Date().toLocaleDateString('fr-FR');
         const targetChannelId = '1531382781014180090';
 
+        // Les deux rôles autorisés à cliquer sur le bouton et ouvrir le formulaire
         const allowedRoleIds = ['1531693399051079700', '1531392863336923246'];
 
         if (interaction.isButton() && interaction.customId === 'create_dossier') {
@@ -95,7 +97,7 @@ module.exports = {
 
             if (!hasRequiredRole) {
                 const errorEmbed = new EmbedBuilder()
-                    .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas la **permission** d\'utiliser cette commande car il vous **manque le rôle requis**.')
+                    .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas la **permission** de cliquer sur ce bouton car il vous **manque le rôle requis**.')
                     .setColor(0xFF0000)
                     .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
