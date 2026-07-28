@@ -1,0 +1,192 @@
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('dossier')
+        .setDescription('Crée le post du panneau de dossier dans le forum des ressources humaines'),
+
+    async execute(interaction) {
+        const requiredRoleId = '1531392863336923246';
+        const targetChannelId = '1531382781014180090';
+
+        const botName = interaction.client.user.username;
+        const botAvatar = interaction.client.user.displayAvatarURL();
+        const currentDate = new Date().toLocaleDateString('fr-FR');
+
+        // 1. Vérification du rôle requis
+        if (!interaction.member.roles.cache.has(requiredRoleId)) {
+            const errorEmbed = new EmbedBuilder()
+                .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas la **permission** d\'utiliser cette commande car il vous **manque le rôle requis**.')
+                .setColor(0xFF0000)
+                .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+            return await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+        }
+
+        const targetChannel = interaction.guild.channels.cache.get(targetChannelId);
+        
+        if (!targetChannel) {
+            const channelErrorEmbed = new EmbedBuilder()
+                .setDescription('## ⛔ __Erreur de configuration__\n\nLe **salon de destination** est introuvable.')
+                .setColor(0xFF0000)
+                .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+            return await interaction.reply({ embeds: [channelErrorEmbed], ephemeral: true });
+        }
+
+        // Vérification si c'est bien un salon de type Forum
+        if (targetChannel.type !== ChannelType.GuildForum) {
+            const forumErrorEmbed = new EmbedBuilder()
+                .setDescription('## ⛔ __Erreur de configuration__\n\nLe salon cible n\'est pas un salon de type **Forum**.')
+                .setColor(0xFF0000)
+                .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+            return await interaction.reply({ embeds: [forumErrorEmbed], ephemeral: true });
+        }
+
+        const embed = new EmbedBuilder()
+            .setDescription(
+                '## 🏥 RESSOURCES HUMAINES - PÔLE MÉDICAL\n\n' +
+                'Bienvenue dans l\'espace des **Ressources Humaines** des EMS. \n\n' +
+                'Vous souhaitez intégrer nos équipes, poser une question concernant votre carrière ou faire une demande particulière ? Tout se passe ici.\n\n' +
+                '> 1. Cliquez sur le bouton **📁 Créer un dossier** ci-dessous.\n\n' +
+                '> 2. Un **formulaire interactif** va s\'ouvrir instantanément sur votre écran.\n\n' +
+                '> 3. Remplissez les différents champs demandés.\n\n' +
+                '> 4. Un forum de suivi sera créé.'
+            )
+            .setColor(0x0074FF)
+            .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('create_dossier')
+                    .setLabel('📁 Créer un dossier')
+                    .setStyle(ButtonStyle.Primary),
+            );
+
+        try {
+            // Création du post (thread) initial d'information dans le salon Forum
+            await targetChannel.threads.create({
+                name: 'Comment créer un dossier ?',
+                message: {
+                    embeds: [embed],
+                    components: [row]
+                }
+            });
+        } catch (error) {
+            console.error("Erreur lors de la création du post dans le forum :", error);
+            const technicalErrorEmbed = new EmbedBuilder()
+                .setDescription('## ⛔ __Erreur__\n\nUne erreur est survenue lors de la création du post dans le forum.')
+                .setColor(0xFF0000)
+                .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+            return await interaction.reply({ embeds: [technicalErrorEmbed], ephemeral: true });
+        }
+
+        const successEmbed = new EmbedBuilder()
+            .setDescription(`## ✅ __Succès de l'envoi__\n\nLe post du **panneau de dossiers** a été **créé avec succès** dans le forum <#${targetChannelId}> !`)
+            .setColor(0x00FF00)
+            .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+    },
+
+    async handleInteraction(interaction) {
+        const botName = interaction.client.user.username;
+        const botAvatar = interaction.client.user.displayAvatarURL();
+        const currentDate = new Date().toLocaleDateString('fr-FR');
+        const targetChannelId = '1531382781014180090';
+        const staffRoleId = '1531400982817280020'; // Rôle staff RH/Médical à notifier
+
+        // 1. Quand l'utilisateur clique sur le bouton "📁 Créer un dossier"
+        if (interaction.isButton() && interaction.customId === 'create_dossier') {
+            const modal = new ModalBuilder()
+                .setCustomId('modal_dossier')
+                .setTitle('Formulaire - Création de dossier');
+
+            // Champ 1 (Obligatoire) : MATRICULE | Nom Prénom
+            const matriculeInput = new TextInputBuilder()
+                .setCustomId('dossier_matricule')
+                .setLabel('MATRICULE | Nom Prénom')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Ex: 1234 | Dr John Doe')
+                .setRequired(true);
+
+            // Champ 2 (Obligatoire) : Date de Naissance
+            const naissanceInput = new TextInputBuilder()
+                .setCustomId('dossier_naissance')
+                .setLabel('Date de Naissance')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Ex: 15/06/1998')
+                .setRequired(true);
+
+            // Champ 3 (Obligatoire) : Numéro de Téléphone
+            const telephoneInput = new TextInputBuilder()
+                .setCustomId('dossier_telephone')
+                .setLabel('Numéro de Téléphone')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Ex: 555-0199')
+                .setRequired(true);
+
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(matriculeInput),
+                new ActionRowBuilder().addComponents(naissanceInput),
+                new ActionRowBuilder().addComponents(telephoneInput)
+            );
+
+            await interaction.showModal(modal);
+        }
+
+        // 2. Quand l'utilisateur valide le formulaire
+        else if (interaction.isModalSubmit() && interaction.customId === 'modal_dossier') {
+            const matricule = interaction.fields.getTextInputValue('dossier_matricule');
+            const naissance = interaction.fields.getTextInputValue('dossier_naissance');
+            const telephone = interaction.fields.getTextInputValue('dossier_telephone');
+            
+            const targetChannel = interaction.guild.channels.cache.get(targetChannelId);
+
+            if (!targetChannel || targetChannel.type !== ChannelType.GuildForum) {
+                return await interaction.reply({
+                    content: 'Erreur : Le salon forum des dossiers est introuvable ou mal configuré.',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.deferReply({ ephemeral: true });
+
+            try {
+                // Création d'un nouveau post (thread) dans le salon Forum pour ce dossier
+                const threadName = `dossier-${matricule.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+                
+                const dossierEmbed = new EmbedBuilder()
+                    .setTitle('📁 Nouveau Dossier RH - Pôle Médical')
+                    .setDescription(
+                        `**Demandeur :** ${interaction.user}\n\n` +
+                        `**1. Matricule & Nom :** ${matricule}\n` +
+                        `**2. Date de Naissance :** ${naissance}\n` +
+                        `**3. Téléphone :** ${telephone}`
+                    )
+                    .setColor(0x0074FF)
+                    .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+                const forumPost = await targetChannel.threads.create({
+                    name: threadName.substring(0, 100),
+                    message: {
+                        content: `${interaction.user} <@&${staffRoleId}>`,
+                        embeds: [dossierEmbed]
+                    }
+                });
+
+                await interaction.editReply({
+                    content: `Votre dossier a été créé avec succès dans le forum : <#${forumPost.id}>`
+                });
+            } catch (error) {
+                console.error("Erreur lors de la création du post forum via modale :", error);
+                await interaction.editReply({
+                    content: 'Une erreur est survenue lors de la création de votre dossier.'
+                });
+            }
+        }
+    }
+};
