@@ -24,7 +24,6 @@ module.exports = {
             return await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
         }
 
-        // Vérification du salon cible
         const targetChannel = interaction.guild.channels.cache.get(targetChannelId);
         
         if (!targetChannel) {
@@ -36,7 +35,6 @@ module.exports = {
             return await interaction.reply({ embeds: [channelErrorEmbed], ephemeral: true });
         }
 
-        // Création de l'embed principal non éphémère
         const embed = new EmbedBuilder()
             .setTitle('📃 **Gestion & Suivi EMS - Trello Officiel**')
             .setDescription(
@@ -59,10 +57,8 @@ module.exports = {
                     .setURL(trelloUrl)
             );
 
-        // Envoi du message dans le salon cible
         await targetChannel.send({ embeds: [embed], components: [row] });
 
-        // Embed de confirmation éphémère pour l'exécutant
         const successEmbed = new EmbedBuilder()
             .setDescription(`## ✅ __Succès de l'envoi__\n\nLe **panneau Trello** a été **envoyé avec succès** dans le salon <#${targetChannelId}> !`)
             .setColor(0x00FF00)

@@ -25,9 +25,10 @@ function generateMatriculeDescription() {
     const lines = [];
     
     for (let i = 1; i <= 99; i++) {
+        const formattedNumber = String(i).padStart(2, '0');
         const userId = dbData[i];
         const mention = userId ? `<@${userId}>` : '';
-        lines.push(`- \`${i}\` : ${mention}`);
+        lines.push(`- \`${formattedNumber}\` : ${mention}`);
     }
 
     return ':telephone: **__LISTE MATRICULE__ :**\n\n' + lines.join('\n');
@@ -99,7 +100,6 @@ module.exports = {
         const botAvatar = interaction.client.user.displayAvatarURL();
         const currentDate = new Date().toLocaleDateString('fr-FR');
 
-        // Vérification de sécurité du rôle pour les boutons et modals
         if (!interaction.member.roles.cache.has(requiredRoleId)) {
             const errorEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas le rôle requis pour effectuer cette action.')
@@ -109,7 +109,6 @@ module.exports = {
             return await interaction.reply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
         }
 
-        // --- GESTION DES BOUTONS ---
         if (interaction.isButton()) {
             if (interaction.customId === 'add_matricule') {
                 const modal = new ModalBuilder()
@@ -151,6 +150,7 @@ module.exports = {
             if (interaction.customId === 'modal_add_matricule') {
                 const inputVal = interaction.fields.getTextInputValue('matricule_number');
                 const numero = parseInt(inputVal, 10);
+                const formattedNumero = String(numero).padStart(2, '0');
 
                 if (isNaN(numero) || numero < 1 || numero > 99) {
                     const errorEmbed = new EmbedBuilder()
@@ -165,7 +165,7 @@ module.exports = {
 
                 if (dbData[numero]) {
                     const errorEmbed = new EmbedBuilder()
-                        .setDescription(`## ⛔ __Erreur__\n\nLe matricule **${numero}** est **déjà attribué** à <@${dbData[numero]}>. Veuillez le retirer d'abord si vous souhaitez le réattribuer.`)
+                        .setDescription(`## ⛔ __Erreur__\n\nLe matricule **${formattedNumero}** est **déjà attribué** à <@${dbData[numero]}>. Veuillez le retirer d'abord si vous souhaitez le réattribuer.`)
                         .setColor(0xFF0000)
                         .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
@@ -173,7 +173,7 @@ module.exports = {
                 }
 
                 const promptEmbed = new EmbedBuilder()
-                    .setDescription(`Veuillez maintenant **ping la personne** associée au matricule **${numero}** dans ce salon (tapez son mention @utilisateur).`)
+                    .setDescription(`Veuillez maintenant **ping la personne** associée au matricule **${formattedNumero}** dans ce salon (tapez son mention @utilisateur).`)
                     .setColor(0x0074FF)
                     .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
@@ -204,7 +204,7 @@ module.exports = {
                     }
 
                     const successEmbed = new EmbedBuilder()
-                        .setDescription(`✅ Le matricule **${numero}** a bien été attribué à <@${targetUser.id}> !`)
+                        .setDescription(`✅ Le matricule **${formattedNumero}** a bien été attribué à <@${targetUser.id}> !`)
                         .setColor(0x00FF00)
                         .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
@@ -226,6 +226,7 @@ module.exports = {
             if (interaction.customId === 'modal_remove_matricule') {
                 const inputVal = interaction.fields.getTextInputValue('matricule_number');
                 const numero = parseInt(inputVal, 10);
+                const formattedNumero = String(numero).padStart(2, '0');
 
                 if (isNaN(numero) || numero < 1 || numero > 99) {
                     const errorEmbed = new EmbedBuilder()
@@ -240,7 +241,7 @@ module.exports = {
 
                 if (!dbData[numero]) {
                     const errorEmbed = new EmbedBuilder()
-                        .setDescription(`## ⛔ __Erreur__\n\nLe matricule **${numero}** n'a **aucune personne** associée à retirer.`)
+                        .setDescription(`## ⛔ __Erreur__\n\nLe matricule **${formattedNumero}** n'a **aucune personne** associée à retirer.`)
                         .setColor(0xFF0000)
                         .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
@@ -264,7 +265,7 @@ module.exports = {
                 }
 
                 const successEmbed = new EmbedBuilder()
-                    .setDescription(`✅ Le matricule **${numero}** a bien été vidé avec succès !`)
+                    .setDescription(`✅ Le matricule **${formattedNumero}** a bien été vidé avec succès !`)
                     .setColor(0x00FF00)
                     .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
