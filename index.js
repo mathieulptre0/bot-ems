@@ -57,6 +57,14 @@ client.on('guildMemberAdd', async member => {
     }
 });
 
+// --- Gestion de la suppression automatique des messages (Forum Dossier) ---
+client.on('messageCreate', async (message) => {
+    const dossierCommand = client.commands.get('dossier');
+    if (dossierCommand && typeof dossierCommand.handleMessage === 'function') {
+        await dossierCommand.handleMessage(message);
+    }
+});
+
 client.on('interactionCreate', async interaction => {
     // 1. Gestion des commandes slash
     if (interaction.isChatInputCommand()) {
