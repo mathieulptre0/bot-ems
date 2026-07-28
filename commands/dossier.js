@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ModalBuilder, TextInputBuilder, TextInputStyle, FileUploadBuilder, LabelBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ModalBuilder, TextInputBuilder, TextInputStyle, FileUploadBuilder, LabelBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,7 +13,6 @@ module.exports = {
         const botAvatar = interaction.client.user.displayAvatarURL();
         const currentDate = new Date().toLocaleDateString('fr-FR');
 
-        // Seul le rôle requis peut exécuter la commande /dossier
         if (!interaction.member.roles.cache.has(requiredRoleId)) {
             const errorEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas la **permission** d\'utiliser cette commande car il vous **manque le rôle requis**.')
@@ -89,7 +88,6 @@ module.exports = {
         const currentDate = new Date().toLocaleDateString('fr-FR');
         const targetChannelId = '1531382781014180090';
 
-        // Les deux rôles autorisés à cliquer sur le bouton et ouvrir le formulaire
         const allowedRoleIds = ['1531693399051079700', '1531392863336923246'];
 
         if (interaction.isButton() && interaction.customId === 'create_dossier') {
@@ -215,11 +213,31 @@ module.exports = {
                     dossierEmbed.setImage(fileUrl);
                 }
 
+                // Création du post avec application des permissions spécifiques
                 const forumPost = await targetChannel.threads.create({
                     name: matricule.substring(0, 100),
                     message: {
                         embeds: [dossierEmbed]
-                    }
+                    },
+                    permissionOverwrites: [
+                        {
+                            id: interaction.guild.id, // @everyone
+                            deny: [PermissionFlagsBits.ViewChannel],
+                        },
+                        {
+                            id: '1531400982817280020', // Rôle qui peut seulement voir
+                            allow: [PermissionFlagsBits.ViewChannel],
+                            deny: [PermissionFlagsBits.SendMessages],
+                        },
+                        {
+                            id: '1531392863336923246', // Rôle 1 (accès complet)
+                            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                        },
+                        {
+                            id: '1531693399051079700', // Rôle 2 (accès complet)
+                            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                        }
+                    ]
                 });
 
                 const starterMessage = await forumPost.fetchStarterMessage();
