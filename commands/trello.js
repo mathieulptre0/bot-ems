@@ -14,7 +14,6 @@ module.exports = {
         const botAvatar = interaction.client.user.displayAvatarURL();
         const currentDate = new Date().toLocaleDateString('fr-FR');
 
-        // Vérification du rôle requis
         if (!interaction.member.roles.cache.has(requiredRoleId)) {
             const errorEmbed = new EmbedBuilder()
                 .setDescription('## ⛔ __Permission refusée__\n\nVous n\'avez pas la **permission** d\'utiliser cette commande car il vous **manque le rôle requis**.')
@@ -48,7 +47,6 @@ module.exports = {
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
-        // Création du bouton linkable (URL)
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()

@@ -57,7 +57,7 @@ module.exports = {
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
         await targetUser.send({ embeds: [dmEmbed] }).catch(() => {
-            // Empêche le bot de crash si les DM de l'utilisateur sont fermés
+
             console.log(`Impossible d'envoyer un message privé à ${targetUser.tag}.`);
         });
 

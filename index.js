@@ -74,7 +74,7 @@ client.on('interactionCreate', async interaction => {
     }
 
     else if (interaction.isButton()) {
-        let commandName = 'ticket'; // Par défaut pour les tickets
+        let commandName = 'ticket';
         
         if (interaction.customId === 'create_dossier') {
             commandName = 'dossier';
