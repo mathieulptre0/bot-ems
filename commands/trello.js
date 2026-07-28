@@ -43,9 +43,9 @@ module.exports = {
                 'Bienvenue dans l\'**espace opérationnel** des EMS !\n' +
                 'Cet outil **Trello** est notre **système officiel** en jeu pour le suivi des **prises de service**, des **interventions** et de l\'avancement des agents.\n\n' +
                 '## **__Règles d\'utilisation__ :**\n\n' +
-                '*🟢 **Activité In-Game :** Cet outil doit **uniquement** être utilisé lorsque vous êtes **connecté** et **en service** sur le serveur FiveM.*\n' +
+                '*🟢 **Activité In-Game :** Cet outil doit **uniquement** être utilisé lorsque vous êtes **connecté** et **en service** sur le serveur FiveM.*\n\n' +
                 '*🔒 **Sécurité & Intégrité :** Toute tentative de **piraterie**, de divulgation d\'**informations confidentielles** ou tout **abus** de cet outil sera **lourdement sanctionné** (sanction administrative en jeu et sur le Discord).*\n\n' +
-                'Accéder au lien direct du Trello en cliquant sur le bouton ci-dessous.'
+                '**Accéder au lien direct du Trello en cliquant sur le bouton ci-dessous.**'
             )
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
