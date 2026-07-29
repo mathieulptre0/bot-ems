@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -6,7 +6,7 @@ module.exports = {
         .setDescription('Affiche le panneau de planification des absences de l\'EMS'),
 
     async execute(interaction) {
-        const requiredRoleId = '1531392863336923246'; // Même rôle requis que pour les matricules (tu peux le modifier si besoin)
+        const requiredRoleId = '1531392863336923246'; // Rôle requis
         const targetChannelId = '1531382698189393970';
 
         const botName = interaction.client.user.username;
@@ -34,25 +34,12 @@ module.exports = {
             return await interaction.reply({ embeds: [channelErrorEmbed], flags: MessageFlags.Ephemeral });
         }
 
-        // Création de l'embed demandé
+        // Création de l'embed demandé sans boutons
         const embed = new EmbedBuilder()
             .setTitle('Planning personnel des agents')
             .setDescription('Bienvenue dans le salon de planification des absences du **Emergency Medical Services (EMS)**.\nAfin de garantir une **organisation optimale** des effectifs et d\'assurer une **couverture médicale constante** à New York, tout agent prévoyant une absence doit impérativement déclarer sa **période d\'indisponibilité** via ce système.')
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
-
-        // Ajout de boutons interactifs (similaire à ton système de matricules)
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('add_absence')
-                    .setLabel('📅 Déclarer une absence')
-                    .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                    .setCustomId('view_absences')
-                    .setLabel('📋 Voir les absences')
-                    .setStyle(ButtonStyle.Primary),
-            );
 
         try {
             // Vérifie si un message du bot existe déjà dans le salon pour le mettre à jour (évite les doublons)
@@ -64,7 +51,7 @@ module.exports = {
             );
 
             if (existingMessage) {
-                await existingMessage.edit({ embeds: [embed], components: [row] });
+                await existingMessage.edit({ embeds: [embed], components: [] });
                 
                 const updateEmbed = new EmbedBuilder()
                     .setDescription(`## ✅ __Mise à jour réussie__\n\nLe **panneau du planning** a été mis à jour dans <#${targetChannelId}> !`)
@@ -77,8 +64,8 @@ module.exports = {
             console.error("Erreur lors de la recherche du message existant pour /a :", e);
         }
 
-        // Si aucun message n'existe, on l'envoie
-        await targetChannel.send({ embeds: [embed], components: [row] });
+        // Si aucun message n'existe, on l'envoie (sans composants)
+        await targetChannel.send({ embeds: [embed] });
 
         const successEmbed = new EmbedBuilder()
             .setDescription(`## ✅ __Succès de l'envoi__\n\nLe **panneau de planification** a été **envoyé avec succès** dans le salon <#${targetChannelId}> !`)
@@ -86,28 +73,5 @@ module.exports = {
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
         await interaction.reply({ embeds: [successEmbed], flags: MessageFlags.Ephemeral });
-    },
-
-    // Gestion des interactions (clics sur les boutons du panneau)
-    async handleInteraction(interaction) {
-        const botName = interaction.client.user.username;
-        const botAvatar = interaction.client.user.displayAvatarURL();
-        const currentDate = new Date().toLocaleDateString('fr-FR');
-
-        if (interaction.isButton()) {
-            if (interaction.customId === 'add_absence') {
-                return await interaction.reply({ 
-                    content: '🛠️ Le système de déclaration d\'absence via modal/formulaire sera bientôt disponible ici !', 
-                    flags: MessageFlags.Ephemeral 
-                });
-            }
-
-            if (interaction.customId === 'view_absences') {
-                return await interaction.reply({ 
-                    content: '📋 Aucune absence enregistrée pour le moment.', 
-                    flags: MessageFlags.Ephemeral 
-                });
-            }
-        }
     }
 };
