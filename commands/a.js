@@ -7,7 +7,7 @@ module.exports = {
 
     async execute(interaction) {
         const requiredRoleId = '1531392863336923246'; // Rôle requis
-        const targetChannelId = '1531382698189393970';
+        const targetChannelId = '1531382963193905223';
 
         const botName = interaction.client.user.username;
         const botAvatar = interaction.client.user.displayAvatarURL();
@@ -36,8 +36,8 @@ module.exports = {
 
         // Création de l'embed demandé sans boutons
         const embed = new EmbedBuilder()
-            .setTitle('📅 Planning personnel des agents')
-            .setDescription('Bienvenue dans le salon de planification des absences du **Emergency Medical Services (EMS)**.\n\nAfin de garantir une **organisation optimale** des effectifs et d\'assurer une **couverture médicale constante** à New York, tout agent prévoyant une absence doit impérativement déclarer sa **période d\'indisponibilité** via ce système.')
+            .setTitle('💡 Boîte à idées')
+            .setDescription('Bienvenue dans le salon de la **boîte à idées** du **Emergency Medical Services (EMS)**.\n\n Afin de contribuer à l´**amélioration continue** de notre service et d´optimiser nos interventions à New York, vous pouvez partager ici toutes vos **suggestions**, **remarques** ou **projets**. Chaque proposition sera lue et étudiée avec attention par la direction.')
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
