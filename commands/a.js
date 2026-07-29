@@ -37,7 +37,7 @@ module.exports = {
         // Création de l'embed demandé sans boutons
         const embed = new EmbedBuilder()
             .setTitle('📅 Planning personnel des agents')
-            .setDescription('Bienvenue dans le salon de planification des absences du **Emergency Medical Services (EMS)**.\nAfin de garantir une **organisation optimale** des effectifs et d\'assurer une **couverture médicale constante** à New York, tout agent prévoyant une absence doit impérativement déclarer sa **période d\'indisponibilité** via ce système.')
+            .setDescription('Bienvenue dans le salon de planification des absences du **Emergency Medical Services (EMS)**.\n\nAfin de garantir une **organisation optimale** des effectifs et d\'assurer une **couverture médicale constante** à New York, tout agent prévoyant une absence doit impérativement déclarer sa **période d\'indisponibilité** via ce système.')
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
