@@ -153,7 +153,7 @@ module.exports = {
                 .setRequired(true);
 
             const fileLabel = new LabelBuilder()
-                .setLabel('Pièce Identité')
+                .setLabel('Pièce d´Identité')
                 .setFileUploadComponent(fileUploadComponent);
 
             modal.addComponents(
