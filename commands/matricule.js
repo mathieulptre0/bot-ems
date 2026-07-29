@@ -37,7 +37,7 @@ function generateMatriculeDescription() {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('matricule')
-        .setDescription('Affiche la liste des matricules dans le salon dédié'),
+        .setDescription('Affiche ou met à jour la liste des matricules dans le salon dédié'),
 
     async execute(interaction) {
         const requiredRoleId = '1531392863336923246';
@@ -84,6 +84,31 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger),
             );
 
+        try {
+            // Récupère les derniers messages du salon pour voir si le panneau existe déjà
+            const messages = await targetChannel.messages.fetch({ limit: 20 });
+            const existingMessage = messages.find(msg => 
+                msg.author.id === interaction.client.user.id && 
+                msg.embeds.length > 0 && 
+                msg.embeds[0].description?.includes('LISTE MATRICULE')
+            );
+
+            if (existingMessage) {
+                // S'il existe déjà, on le met à jour au lieu d'en recréer un
+                await existingMessage.edit({ embeds: [embed], components: [row] });
+                
+                const updateEmbed = new EmbedBuilder()
+                    .setDescription(`## ✅ __Mise à jour réussie__\n\nLe **panneau des matricules** a été mis à jour avec les données de la base de données dans <#${targetChannelId}> !`)
+                    .setColor(0x00FF00)
+                    .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+                return await interaction.reply({ embeds: [updateEmbed], flags: MessageFlags.Ephemeral });
+            }
+        } catch (e) {
+            console.error("Erreur lors de la recherche du message existant :", e);
+        }
+
+        // S'il n'existe pas, on envoie un nouveau message
         await targetChannel.send({ embeds: [embed], components: [row] });
 
         const successEmbed = new EmbedBuilder()
