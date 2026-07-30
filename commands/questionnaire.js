@@ -25,12 +25,12 @@ module.exports = {
             return await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
         }
 
-        // Construction de l'embed non éphémère pour le salon
+        // Construction de l'embed non éphémère pour le salon avec la nouvelle description
         const embed = new EmbedBuilder()
             .setTitle('🗒️ [EMS] - Session de Recrutement')
             .setDescription(
                 'Bienvenue dans le **module de recrutement** du **Emergency Medical Services (EMS)**.\n\n' +
-                'Un **nouveau processus de sélection** est sur le point d\'être **initié**. Veuillez suivre **attentivement** les instructions et répondre aux différentes étapes pour **valider votre candidature** au sein de notre **équipe médicale**.'
+                'Une **nouvelle session d\'évaluation** est sur le point d\'être **initiée**. En tant que recruteur, veuillez suivre **attentivement** les réponses du candidat pour **analyser ses compétences** et **décider de son intégration** au sein de notre **équipe médicale**.'
             )
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
