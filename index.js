@@ -80,6 +80,8 @@ client.on('interactionCreate', async interaction => {
             commandName = 'dossier';
         } else if (interaction.customId === 'add_matricule' || interaction.customId === 'remove_matricule') {
             commandName = 'matricule';
+        } else if (interaction.customId === 'start_questionnaire') {
+            commandName = 'questionnaire';
         }
 
         const command = client.commands.get(commandName);
