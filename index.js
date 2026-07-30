@@ -10,8 +10,7 @@ app.listen(port, () => {
   console.log(`Serveur web prêt sur le port ${port}`);
 });
 
-
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const { Client, GatewayIntentBits, Collection, MessageFlags } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 require('dotenv').config();
@@ -37,7 +36,6 @@ for (const file of commandFiles) {
     }
 }
 
-// Correction du warning 'ready' renommé en 'clientReady'
 client.once('clientReady', () => {
     console.log(`Connecté en tant que ${client.user.tag} !`);
 });
@@ -70,7 +68,9 @@ client.on('interactionCreate', async interaction => {
             await command.execute(interaction);
         } catch (error) {
             console.error(error);
-            await interaction.reply({ content: 'Une erreur est survenue lors de l\'exécution de cette commande !', ephemeral: true });
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({ content: 'Une erreur est survenue lors de l\'exécution de cette commande !', flags: [MessageFlags.Ephemeral] }).catch(() => {});
+            }
         }
     }
 
@@ -81,8 +81,16 @@ client.on('interactionCreate', async interaction => {
             commandName = 'dossier';
         } else if (interaction.customId === 'add_matricule' || interaction.customId === 'remove_matricule') {
             commandName = 'matricule';
-        } else if (interaction.customId === 'start_questionnaire') {
-            commandName = 'questionnaire';
+        } else if (
+            interaction.customId === 'start_questionnaire' || 
+            interaction.customId === 'to_culture_generale' || 
+            interaction.customId === 'to_mises_en_situation' ||
+            interaction.customId === 'show_results' ||
+            interaction.customId.startsWith('q') || 
+            interaction.customId.startsWith('cg') ||
+            interaction.customId.startsWith('sit')
+        ) {
+            commandName = 'questionnaire'; 
         }
 
         const command = client.commands.get(commandName);
@@ -90,7 +98,10 @@ client.on('interactionCreate', async interaction => {
             try {
                 await command.handleInteraction(interaction);
             } catch (error) {
-                console.error(error);
+                console.error("Erreur lors de l'interaction bouton :", error);
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: 'Une erreur est survenue lors du traitement de ce bouton.', flags: [MessageFlags.Ephemeral] }).catch(() => {});
+                }
             }
         }
     }
