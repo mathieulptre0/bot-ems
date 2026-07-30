@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,10 +8,35 @@ module.exports = {
             option.setName('candidat')
                 .setDescription('Le candidat concerné par le rendez-vous')
                 .setRequired(true))
-        .addStringOption(option =>
-            option.setName('date_heure')
-                .setDescription('La date et l\'heure du rendez-vous (ex: Samedi 8 août à 15h00)')
-                .setRequired(true)),
+        .addIntegerOption(option =>
+            option.setName('jour')
+                .setDescription('Le jour du mois (ex: 28)')
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(31))
+        .addIntegerOption(option =>
+            option.setName('mois')
+                .setDescription('Le mois (1 pour Janvier, 12 pour Décembre)')
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(12))
+        .addIntegerOption(option =>
+            option.setName('annee')
+                .setDescription('L\'année (ex: 2026)')
+                .setRequired(true)
+                .setMinValue(2026))
+        .addIntegerOption(option =>
+            option.setName('heure')
+                .setDescription('L\'heure au format 24h (ex: 18 pour 18h)')
+                .setRequired(true)
+                .setMinValue(0)
+                .setMaxValue(23))
+        .addIntegerOption(option =>
+            option.setName('minutes')
+                .setDescription('Les minutes (ex: 0 ou 30)')
+                .setRequired(true)
+                .setMinValue(0)
+                .setMaxValue(59)),
 
     async execute(interaction) {
         const requiredRoleId = '1531392863336923246';
@@ -30,8 +55,19 @@ module.exports = {
         }
 
         const targetUser = interaction.options.getUser('candidat');
-        const dateHeure = interaction.options.getString('date_heure');
+        const jour = interaction.options.getInteger('jour');
+        const mois = interaction.options.getInteger('mois');
+        const annee = interaction.options.getInteger('annee');
+        const heure = interaction.options.getInteger('heure');
+        const minutes = interaction.options.getInteger('minutes');
         const recruiter = interaction.user;
+
+        // Création de l'objet Date et du timestamp Discord (format <t:TIMESTAMP:F> ou similaire)
+        const dateObj = new Date(annee, mois - 1, jour, heure, minutes);
+        const timestamp = Math.floor(dateObj.getTime() / 1000);
+
+        // Formatage textuel pour affichage propre (ex: Jeudi 30 Juillet 2026 à 18h00)
+        const dateFormatee = `<t:${timestamp}:F>`;
 
         const embed = new EmbedBuilder()
             .setTitle('## 🏥 [EMS] - Confirmation de Rendez-vous')
@@ -39,26 +75,24 @@ module.exports = {
                 '**Planification de l\'Entretien**\n\n' +
                 'Votre rendez-vous de recrutement à l\'hôpital a bien été enregistré ! \n\n' +
                 `- **Candidat :** <@${targetUser.id}>\n` +
-                `- **Date et Heure :** ${dateHeure}\n` +
+                `- **Date et Heure :** ${dateFormatee}\n` +
                 `- **Recruteur :** <@${recruiter.id}>\n\n` +
                 '⚠️ Une confirmation détaillée vous a été envoyée par message privé (DM). Veuillez la conserver précieusement !'
             )
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
+        // Envoi de l'embed en message privé au candidat
         try {
             await targetUser.send({ embeds: [embed] });
         } catch (error) {
             console.error("Impossible d'envoyer le message privé au candidat :", error);
-            const dmErrorEmbed = new EmbedBuilder()
-                .setDescription('## ⚠️ __Attention__\n\nLe rendez-vous a bien été planifié dans le salon, mais il a été **impossible d\'envoyer le message privé (DM)** au candidat (ses messages privés sont sûrement fermés).')
-                .setColor(0xFFA500)
-                .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
-
-            await interaction.reply({ embeds: [embed], ephemeral: false });
-            return await interaction.followUp({ embeds: [dmErrorEmbed], ephemeral: true });
         }
 
-        await interaction.reply({ embeds: [embed], ephemeral: false });
+        // Envoi de l'embed publiquement dans le salon
+        await interaction.channel.send({ embeds: [embed] });
+
+        // Réponse éphémère de validation pour l'admin pour éviter l'erreur de commande
+        await interaction.reply({ content: '✅ Le rendez-vous a été planifié et publié avec succès !', ephemeral: true });
     }
 };
