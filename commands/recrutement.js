@@ -71,7 +71,7 @@ module.exports = {
 
         // Embed pour le message PRIVÉ (sans l'avertissement DM)
         const dmEmbed = new EmbedBuilder()
-            .setTitle('## 🏥 [EMS] - Confirmation de Rendez-vous')
+            .setTitle('🏥 [EMS] - Confirmation de Rendez-vous')
             .setDescription(
                 '**Planification de l\'Entretien**\n\n' +
                 'Votre rendez-vous de recrutement à l\'hôpital a bien été enregistré ! \n\n' +
@@ -84,7 +84,7 @@ module.exports = {
 
         // Embed pour le salon PUBLIC (avec l'avertissement DM)
         const publicEmbed = new EmbedBuilder()
-            .setTitle('## 🏥 [EMS] - Confirmation de Rendez-vous')
+            .setTitle('🏥 [EMS] - Confirmation de Rendez-vous')
             .setDescription(
                 '**Planification de l\'Entretien**\n\n' +
                 'Votre rendez-vous de recrutement à l\'hôpital a bien été enregistré ! \n\n' +
