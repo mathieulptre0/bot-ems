@@ -54,12 +54,8 @@ module.exports = {
             return await interaction.reply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
         }
 
-        const successEmbed = new EmbedBuilder()
-            .setDescription(`## ✅ __Succès de l'envoi__\n\nLe **rendez-vous de recrutement** a été **planifié et publié avec succès** !`)
-            .setColor(0x00FF00)
-            .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
-
-        await interaction.reply({ embeds: [successEmbed], flags: MessageFlags.Ephemeral });
+        // On diffère la réponse immédiatement pour éviter l'expiration (Unknown interaction)
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const targetUser = interaction.options.getUser('candidat');
         const jour = interaction.options.getInteger('jour');
@@ -86,12 +82,22 @@ module.exports = {
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
+        // Envoi du message privé au candidat
         try {
             await targetUser.send({ embeds: [embed] });
         } catch (error) {
             console.error("Impossible d'envoyer le message privé au candidat :", error);
         }
 
+        // Envoi de l'embed dans le salon public
         await interaction.channel.send({ embeds: [embed] });
+
+        // Confirmation finale éphémère pour l'exécutant
+        const successEmbed = new EmbedBuilder()
+            .setDescription(`## ✅ __Succès de l'envoi__\n\nLe **rendez-vous de recrutement** a été **planifié et publié avec succès** !`)
+            .setColor(0x00FF00)
+            .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+        await interaction.editReply({ embeds: [successEmbed] });
     }
 };
