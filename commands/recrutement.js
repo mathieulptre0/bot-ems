@@ -70,7 +70,7 @@ module.exports = {
         const dateFormatee = `<t:${timestamp}:F>`;
 
         const embed = new EmbedBuilder()
-            .setTitle('## 🏥 [EMS] - Confirmation de Rendez-vous')
+            .setTitle('🏥 [EMS] - Confirmation de Rendez-vous')
             .setDescription(
                 '**Planification de l\'Entretien**\n\n' +
                 'Votre rendez-vous de recrutement à l\'hôpital a bien été enregistré ! \n\n' +
