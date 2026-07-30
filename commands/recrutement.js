@@ -62,11 +62,9 @@ module.exports = {
         const minutes = interaction.options.getInteger('minutes');
         const recruiter = interaction.user;
 
-        // Création de l'objet Date et du timestamp Discord (format <t:TIMESTAMP:F> ou similaire)
+        // Génération du format de date interactif Discord
         const dateObj = new Date(annee, mois - 1, jour, heure, minutes);
         const timestamp = Math.floor(dateObj.getTime() / 1000);
-
-        // Formatage textuel pour affichage propre (ex: Jeudi 30 Juillet 2026 à 18h00)
         const dateFormatee = `<t:${timestamp}:F>`;
 
         const embed = new EmbedBuilder()
@@ -82,17 +80,17 @@ module.exports = {
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
-        // Envoi de l'embed en message privé au candidat
+        // Envoi en message privé au candidat
         try {
             await targetUser.send({ embeds: [embed] });
         } catch (error) {
             console.error("Impossible d'envoyer le message privé au candidat :", error);
         }
 
-        // Envoi de l'embed publiquement dans le salon
+        // Envoi unique dans le salon public
         await interaction.channel.send({ embeds: [embed] });
 
-        // Réponse éphémère de validation pour l'admin pour éviter l'erreur de commande
-        await interaction.reply({ content: '✅ Le rendez-vous a été planifié et publié avec succès !', ephemeral: true });
+        // Accusé de réception invisible pour l'administrateur
+        await interaction.reply({ content: '✅ Le rendez-vous a été planifié avec succès.', ephemeral: true });
     }
 };
