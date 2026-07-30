@@ -54,7 +54,7 @@ module.exports = {
             return await interaction.reply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
         }
 
-        // On diffère la réponse immédiatement pour éviter l'expiration (Unknown interaction)
+        // On diffère la réponse immédiatement pour éviter l'expiration
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const targetUser = interaction.options.getUser('candidat');
@@ -69,8 +69,22 @@ module.exports = {
         const timestamp = Math.floor(dateObj.getTime() / 1000);
         const dateFormatee = `<t:${timestamp}:F>`;
 
-        const embed = new EmbedBuilder()
-            .setTitle('🏥 [EMS] - Confirmation de Rendez-vous')
+        // Embed pour le message PRIVÉ (sans l'avertissement DM)
+        const dmEmbed = new EmbedBuilder()
+            .setTitle('## 🏥 [EMS] - Confirmation de Rendez-vous')
+            .setDescription(
+                '**Planification de l\'Entretien**\n\n' +
+                'Votre rendez-vous de recrutement à l\'hôpital a bien été enregistré ! \n\n' +
+                `- **Candidat :** <@${targetUser.id}>\n` +
+                `- **Date et Heure :** ${dateFormatee}\n` +
+                `- **Recruteur :** <@${recruiter.id}>`
+            )
+            .setColor(0x0074FF)
+            .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+        // Embed pour le salon PUBLIC (avec l'avertissement DM)
+        const publicEmbed = new EmbedBuilder()
+            .setTitle('## 🏥 [EMS] - Confirmation de Rendez-vous')
             .setDescription(
                 '**Planification de l\'Entretien**\n\n' +
                 'Votre rendez-vous de recrutement à l\'hôpital a bien été enregistré ! \n\n' +
@@ -84,13 +98,13 @@ module.exports = {
 
         // Envoi du message privé au candidat
         try {
-            await targetUser.send({ embeds: [embed] });
+            await targetUser.send({ embeds: [dmEmbed] });
         } catch (error) {
             console.error("Impossible d'envoyer le message privé au candidat :", error);
         }
 
         // Envoi de l'embed dans le salon public
-        await interaction.channel.send({ embeds: [embed] });
+        await interaction.channel.send({ embeds: [publicEmbed] });
 
         // Confirmation finale éphémère pour l'exécutant
         const successEmbed = new EmbedBuilder()
