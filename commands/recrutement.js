@@ -54,6 +54,14 @@ module.exports = {
             return await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
         }
 
+        // 1. On répond tout de suite à l'interaction pour la verrouiller et éviter l'erreur 40060
+        const successEmbed = new EmbedBuilder()
+            .setDescription(`## ✅ __Succès de l'envoi__\n\nLe **rendez-vous de recrutement** a été **planifié et publié avec succès** !`)
+            .setColor(0x00FF00)
+            .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
+
+        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+
         const targetUser = interaction.options.getUser('candidat');
         const jour = interaction.options.getInteger('jour');
         const mois = interaction.options.getInteger('mois');
@@ -80,17 +88,14 @@ module.exports = {
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
-        // Envoi en message privé au candidat
+        // 2. Envoi en message privé au candidat
         try {
             await targetUser.send({ embeds: [embed] });
         } catch (error) {
             console.error("Impossible d'envoyer le message privé au candidat :", error);
         }
 
-        // Envoi unique dans le salon public
+        // 3. Envoi unique de l'embed dans le salon public
         await interaction.channel.send({ embeds: [embed] });
-
-        // Accusé de réception invisible pour l'administrateur
-        await interaction.reply({ content: '✅ Le rendez-vous a été planifié avec succès.', ephemeral: true });
     }
 };
