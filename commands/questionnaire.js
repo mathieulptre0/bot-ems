@@ -25,13 +25,13 @@ module.exports = {
             return await interaction.reply({ embeds: [errorEmbed], flags: [MessageFlags.Ephemeral] });
         }
 
-        // Construction de l'embed non éphémère pour le salon avec le texte détaillé
+        // Construction de l'embed non éphémère pour le salon avec la description mise à jour
         const embed = new EmbedBuilder()
             .setTitle('🗒️ [EMS] - Session de Recrutement')
             .setDescription(
                 'Bienvenue dans le **module de recrutement** du **Emergency Medical Services (EMS)**.\n\n' +
                 'Une **nouvelle session d\'évaluation** est sur le point d\'être **initiée**. En tant que recruteur, veuillez suivre **attentivement** les réponses du candidat pour **analyser ses compétences** et **décider de son intégration** au sein de notre **équipe médicale**.\n\n' +
-                '### 📋 **Déroulement de l\'entretien :**\n\n' +
+                '### 📋 **__Déroulement de l\'entretien__ :**\n\n' +
                 '* 👤 **Questions personnelles :** Présentation, motivations et disponibilités du candidat.\n' +
                 '* 🧠 **Culture générale :** **3 questions** sur le milieu médical et hospitalier.\n' +
                 '* 🚨 **Mises en situation :** **5 cas pratiques** progressifs (du plus simple au plus critique).'
