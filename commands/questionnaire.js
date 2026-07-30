@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,10 +22,10 @@ module.exports = {
                 .setColor(0xFF0000)
                 .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
-            return await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+            return await interaction.reply({ embeds: [errorEmbed], flags: [MessageFlags.Ephemeral] });
         }
 
-        // Construction de l'embed non éphémère pour le salon avec la nouvelle description
+        // Construction de l'embed non éphémère pour le salon avec la description mise à jour
         const embed = new EmbedBuilder()
             .setTitle('🗒️ [EMS] - Session de Recrutement')
             .setDescription(
@@ -54,7 +54,7 @@ module.exports = {
             .setColor(0x00FF00)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
-        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [successEmbed], flags: [MessageFlags.Ephemeral] });
     },
 
     async handleInteraction(interaction) {
@@ -64,7 +64,7 @@ module.exports = {
             // Logique future pour lancer le questionnaire (modals, questions en DM, etc.)
             await interaction.reply({
                 content: 'Le questionnaire va bientôt commencer ! (Logique à implémenter selon tes étapes)',
-                ephemeral: true
+                flags: [MessageFlags.Ephemeral]
             });
         }
     }

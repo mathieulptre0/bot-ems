@@ -37,7 +37,8 @@ for (const file of commandFiles) {
     }
 }
 
-client.once('ready', () => {
+// Correction du warning 'ready' renommé en 'clientReady'
+client.once('clientReady', () => {
     console.log(`Connecté en tant que ${client.user.tag} !`);
 });
 
