@@ -75,9 +75,11 @@ client.on('interactionCreate', async interaction => {
     }
 
     else if (interaction.isButton()) {
-        let commandName = 'ticket';
+        let commandName = null;
         
-        if (interaction.customId === 'create_dossier') {
+        if (interaction.customId === 'create_ticket' || interaction.customId === 'close_ticket') {
+            commandName = 'ticket';
+        } else if (interaction.customId === 'create_dossier') {
             commandName = 'dossier';
         } else if (interaction.customId === 'add_matricule' || interaction.customId === 'remove_matricule') {
             commandName = 'matricule';
@@ -93,14 +95,16 @@ client.on('interactionCreate', async interaction => {
             commandName = 'questionnaire'; 
         }
 
-        const command = client.commands.get(commandName);
-        if (command && command.handleInteraction) {
-            try {
-                await command.handleInteraction(interaction);
-            } catch (error) {
-                console.error("Erreur lors de l'interaction bouton :", error);
-                if (!interaction.replied && !interaction.deferred) {
-                    await interaction.reply({ content: 'Une erreur est survenue lors du traitement de ce bouton.', flags: [MessageFlags.Ephemeral] }).catch(() => {});
+        if (commandName) {
+            const command = client.commands.get(commandName);
+            if (command && command.handleInteraction) {
+                try {
+                    await command.handleInteraction(interaction);
+                } catch (error) {
+                    console.error("Erreur lors de l'interaction bouton :", error);
+                    if (!interaction.replied && !interaction.deferred) {
+                        await interaction.reply({ content: 'Une erreur est survenue lors du traitement de ce bouton.', flags: [MessageFlags.Ephemeral] }).catch(() => {});
+                    }
                 }
             }
         }

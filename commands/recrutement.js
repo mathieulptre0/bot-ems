@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -51,16 +51,15 @@ module.exports = {
                 .setColor(0xFF0000)
                 .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
-            return await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+            return await interaction.reply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
         }
 
-        // 1. On répond tout de suite à l'interaction pour la verrouiller et éviter l'erreur 40060
         const successEmbed = new EmbedBuilder()
             .setDescription(`## ✅ __Succès de l'envoi__\n\nLe **rendez-vous de recrutement** a été **planifié et publié avec succès** !`)
             .setColor(0x00FF00)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
-        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [successEmbed], flags: MessageFlags.Ephemeral });
 
         const targetUser = interaction.options.getUser('candidat');
         const jour = interaction.options.getInteger('jour');
@@ -70,7 +69,6 @@ module.exports = {
         const minutes = interaction.options.getInteger('minutes');
         const recruiter = interaction.user;
 
-        // Génération du format de date interactif Discord
         const dateObj = new Date(annee, mois - 1, jour, heure, minutes);
         const timestamp = Math.floor(dateObj.getTime() / 1000);
         const dateFormatee = `<t:${timestamp}:F>`;
@@ -88,14 +86,12 @@ module.exports = {
             .setColor(0x0074FF)
             .setFooter({ text: `${botName} — ${currentDate}`, iconURL: botAvatar });
 
-        // 2. Envoi en message privé au candidat
         try {
             await targetUser.send({ embeds: [embed] });
         } catch (error) {
             console.error("Impossible d'envoyer le message privé au candidat :", error);
         }
 
-        // 3. Envoi unique de l'embed dans le salon public
         await interaction.channel.send({ embeds: [embed] });
     }
 };
